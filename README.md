@@ -23,6 +23,7 @@ make install
 ```bash
 extract-post posting.html # creates posting.md
 extract-post posting.html output.md
+extract-post posting.html | pbcopy # sends Markdown to stdout
 ```
 
 ## Running tests

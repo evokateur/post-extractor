@@ -1,4 +1,5 @@
 import argparse
+import stat
 import sys
 from pathlib import Path
 from urllib.parse import urlparse
@@ -44,14 +45,20 @@ def _build_output_path(input_value: str) -> Path:
     return Path(f"{slug}.md")
 
 
+def _stdout_is_pipe() -> bool:
+    return stat.S_ISFIFO(Path("/dev/stdout").stat().st_mode)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+    write_to_stdout = not args.output and _stdout_is_pipe()
+    status_stream = sys.stderr if write_to_stdout else sys.stdout
 
     try:
         if _is_url(args.input):
             html = _fetch_url_html(args.input)
             extractor = select_extractor(html, source_url=args.input)
-            print(f"Using {extractor.__name__}...")
+            print(f"Using {extractor.__name__}...", file=status_stream)
             job = extractor.from_string(html, source_url=args.input).extract()
         else:
             input_file = Path(args.input)
@@ -60,14 +67,19 @@ def main(argv: list[str] | None = None) -> int:
                 return 1
             html = input_file.read_text(encoding="utf-8")
             extractor = select_extractor(html)
-            print(f"Using {extractor.__name__}...")
+            print(f"Using {extractor.__name__}...", file=status_stream)
             job = extractor.from_string(html).extract()
     except (OSError, ValueError, RuntimeError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
 
+    markdown = job.to_markdown()
+    if write_to_stdout:
+        print(markdown, end="")
+        return 0
+
     output_file = Path(args.output) if args.output else _build_output_path(args.input)
-    output_file.write_text(job.to_markdown(), encoding="utf-8")
+    output_file.write_text(markdown, encoding="utf-8")
     return 0
 
 

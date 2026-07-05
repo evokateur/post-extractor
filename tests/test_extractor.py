@@ -740,6 +740,20 @@ def test_cli_writes_markdown_file(capsys, tmp_path: Path):
     assert captured.err == ""
 
 
+def test_cli_writes_markdown_to_stdout_when_piped(monkeypatch, capsys, tmp_path: Path):
+    saved_page = tmp_path / "posting.html"
+    saved_page.write_text(make_saved_page("<p>Converted</p>"), encoding="utf-8")
+    monkeypatch.setattr(cli, "_stdout_is_pipe", lambda: True)
+
+    exit_code = cli.main([str(saved_page)])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert captured.out == "# Test Job\n\nConverted\n"
+    assert captured.err == "Using UpworkExtractor...\n"
+    assert not (tmp_path / "posting.md").exists()
+
+
 def test_cli_writes_markdown_file_to_explicit_output_path(capsys, tmp_path: Path):
     saved_page = tmp_path / "posting.html"
     output_file = tmp_path / "custom-output.md"
