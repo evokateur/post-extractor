@@ -10,6 +10,7 @@ Useful for LLM analysis and Obsidian notes.
 
 - Upwork (HTML saved from browser after solving CAPTCHA)
 - Welcome to the Jungle (URLs or downloaded HTML)
+- LinkedIn markdown postprocessing
 
 ## Installation
 
@@ -23,6 +24,7 @@ make install
 ```bash
 extract-post posting.html # creates posting.md
 extract-post posting.html output.md
+extract-post linkedin.md # creates linkedin-cleaned.md
 extract-post posting.html | pbcopy # sends Markdown to stdout
 ```
 
