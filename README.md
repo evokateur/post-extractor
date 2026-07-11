@@ -6,6 +6,10 @@ Converts job posting HTML into Markdown. Works with HTML files or URLs.
 
 Useful for LLM analysis and Obsidian notes.
 
+## Status
+
+Integrated with [CV Joint](https://github.com/evokateur/cv-joint); `extract-post` command installed from there.
+
 ### Specialized Extractors (so far)
 
 - Upwork (HTML saved from browser after solving CAPTCHA)
